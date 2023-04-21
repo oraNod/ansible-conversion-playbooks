@@ -3,8 +3,8 @@
   vars:
     source_repository: git@github.com:ansible/ansible-lint.git
     source_directory: ./ansible-lint
-    markdown_directory: ./ansible-lint/docs
-    target_directory: ./asciidoc
+    markdown_directory: "{{ source_directory }}/docs"
+    target_directory: ./converted_markdown
   tasks:
     - name: Checkout the source repository
       ansible.builtin.git:
