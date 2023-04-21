@@ -1,0 +1,55 @@
+- name: Convert markdown to asciidoc
+  hosts: localhost
+  vars:
+    source_repository: git@github.com:ansible/ansible-lint.git
+    source_directory: ./ansible-lint
+    markdown_directory: ./ansible-lint/docs
+    target_directory: ./asciidoc
+  tasks:
+    - name: Checkout the source repository
+      ansible.builtin.git:
+        repo: "{{ source_repository }}"
+        dest: "{{ source_directory }}"
+        single_branch: true
+        version: v6.14.6
+    - name: Extract all markdown files from the source
+      ansible.posix.synchronize:
+        src: "{{ markdown_directory }}"
+        dest: "{{ target_directory }}"
+        delete: true
+        recursive: true
+        rsync_opts:
+          - "--exclude='__pycache__'"
+          - "--exclude='_static'"
+          - "--exclude='licenses'"
+          - "--exclude='pkg'"
+          - "--exclude='images'"
+          - "--exclude='rules'"
+          - "--exclude='stylesheets'"
+          - "--exclude='.gitignore'"
+          - "--exclude='.nojekyll'"
+          - "--exclude='conf.py'"
+          - "--exclude='redirects.yml'"
+          - "--exclude='*.html'"
+    - name: Clean up by removing the source directory
+      ansible.builtin.file:
+        path: "{{ source_directory }}"
+        state: absent
+    - name: Create a variable that registers all markdown files
+      ansible.builtin.find:
+        paths: "{{ target_directory }}"
+        patterns: "*.md"
+        recurse: true
+        file_type: file
+      register: markdown_files
+    - name: Convert markdown to asciidoc
+      ansible.builtin.shell:
+        cmd: while read i; do kramdoc "$i" -o "${i%.*}.adoc"; done
+        stdin: "{{ item.path }}"
+      loop: "{{ markdown_files.files }}"
+      changed_when: false
+    - name: Clean up by removing all source markdown files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ markdown_files.files }}"
