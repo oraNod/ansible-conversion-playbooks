@@ -1,0 +1,50 @@
+- name: Convert restructured text (rst) to asciidoc
+  hosts: localhost
+  vars:
+    source_repository: git@github.com:ansible/ansible-builder.git
+    source_directory: ./ansible-builder
+    rst_directory: "{{ source_directory }}/docs"
+    target_directory: ./converted_rst
+  tasks:
+    - name: Checkout the source repository
+      ansible.builtin.git:
+        repo: "{{ source_repository }}"
+        dest: "{{ source_directory }}"
+        single_branch: true
+        version: "1.2.0"
+    - name: Extract all rst files from the source
+      ansible.posix.synchronize:
+        src: "{{ rst_directory }}"
+        dest: "{{ target_directory }}"
+        delete: true
+        recursive: true
+        rsync_opts:
+          - "--exclude='_static'"
+          - "--exclude='_templates'"
+          - "--exclude='Makefile'"
+          - "--exclude='conf.py'"
+          - "--exclude='*.bat'"
+          - "--exclude='*.in'"
+          - "--exclude='*.txt'"
+    - name: Clean up by removing the source directory
+      ansible.builtin.file:
+        path: "{{ source_directory }}"
+        state: absent
+    - name: Create a variable that registers all rst files
+      ansible.builtin.find:
+        paths: "{{ target_directory }}"
+        patterns: "*.rst"
+        recurse: true
+        file_type: file
+      register: rst_files
+    - name: Convert rst to asciidoc
+      ansible.builtin.shell:
+        cmd: while read i; do pandoc -f rst -t asciidoc "$i" -o "${i%.*}.adoc"; done
+        stdin: "{{ item.path }}"
+      loop: "{{ rst_files.files }}"
+      changed_when: false
+    - name: Clean up by removing all source rst files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ rst_files.files }}"
