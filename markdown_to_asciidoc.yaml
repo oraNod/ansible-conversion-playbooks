@@ -2,6 +2,7 @@
   hosts: localhost
   vars:
     source_repository: git@github.com:ansible/ansible-lint.git
+    source_version: v6.14.6
     source_directory: ./ansible-lint
     markdown_directory: "{{ source_directory }}/docs"
     target_directory: ./converted_markdown
@@ -11,7 +12,7 @@
         repo: "{{ source_repository }}"
         dest: "{{ source_directory }}"
         single_branch: true
-        version: v6.14.6
+        version: "{{ source_version }}"
     - name: Extract all markdown files from the source
       ansible.posix.synchronize:
         src: "{{ markdown_directory }}"
