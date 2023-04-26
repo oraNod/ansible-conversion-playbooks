@@ -4,7 +4,7 @@
     source_repository: git@github.com:ansible/ansible-lint.git
     source_version: v6.14.6
     source_directory: ./ansible-lint
-    markdown_directory: "{{ source_directory }}/docs"
+    source_markdown_path: "{{ source_directory }}/docs"
     target_directory: ./converted_markdown
   tasks:
     - name: Checkout the source repository
@@ -15,7 +15,7 @@
         version: "{{ source_version }}"
     - name: Extract all markdown files from the source
       ansible.posix.synchronize:
-        src: "{{ markdown_directory }}"
+        src: "{{ source_markdown_path }}"
         dest: "{{ target_directory }}"
         delete: true
         recursive: true

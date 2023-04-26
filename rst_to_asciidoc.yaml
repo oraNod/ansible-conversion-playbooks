@@ -4,7 +4,7 @@
     source_repository: git@github.com:ansible/ansible-builder.git
     source_version: "1.2.0"
     source_directory: ./ansible-builder
-    rst_directory: "{{ source_directory }}/docs"
+    source_rst_path: "{{ source_directory }}/docs"
     target_directory: ./converted_rst
   tasks:
     - name: Checkout the source repository
@@ -15,7 +15,7 @@
         version: "{{ source_version }}"
     - name: Extract all rst files from the source
       ansible.posix.synchronize:
-        src: "{{ rst_directory }}"
+        src: "{{ source_rst_path }}"
         dest: "{{ target_directory }}"
         delete: true
         recursive: true
