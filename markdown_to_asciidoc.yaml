@@ -53,4 +53,4 @@
       ansible.builtin.file:
         path: "{{ item.path }}"
         state: absent
-      with_items: "{{ markdown_files.files }}"
+      loop: "{{ markdown_files.files }}"

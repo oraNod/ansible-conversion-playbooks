@@ -48,4 +48,4 @@
       ansible.builtin.file:
         path: "{{ item.path }}"
         state: absent
-      with_items: "{{ rst_files.files }}"
+      loop: "{{ rst_files.files }}"
