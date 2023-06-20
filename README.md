@@ -1,6 +1,6 @@
-# Conversion playbooks for Ansible
+# Plaintext markup conversion playbooks (pandoc + ansible)
 
-These are some Ansible playbooks that can convert markdown and RST to asciidoc. Other conversions are possible too.
+These Ansible playbooks convert markdown and RST to asciidoc. Other conversions are possible too.
 
 ## Conversion tools
 
